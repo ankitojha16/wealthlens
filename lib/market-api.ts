@@ -35,19 +35,22 @@ async function requestJson<T>(url: string): Promise<T | null> {
     return null;
   }
 
-  const response = await fetch(url, {
-    headers: buildHeaders(),
-    next: { revalidate: 300 },
-  });
+  try {
+    const response = await fetch(url, {
+      headers: buildHeaders(),
+      next: { revalidate: 300 },
+    });
 
-  if (!response.ok) {
-    if (response.status === 429) {
-      throw new Error("Rate limited by market data provider.");
+    if (!response.ok) {
+      console.warn(`[market-api] Provider request failed with status ${response.status}.`);
+      return null;
     }
-    throw new Error(`Provider request failed: ${response.status}`);
-  }
 
-  return response.json() as Promise<T>;
+    return await response.json() as T;
+  } catch (error) {
+    console.warn("[market-api] Provider request failed.", error);
+    return null;
+  }
 }
 
 export async function getMarketIndices(): Promise<MarketIndex[]> {
