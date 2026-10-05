@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
-import { newsItems } from "@/lib/demo-data";
+import { getNews } from "@/lib/market-api";
 
-export default function NewsPage() {
+export default async function NewsPage() {
+  const newsItems = await getNews();
+
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
       <div className="mb-8">
@@ -10,18 +12,18 @@ export default function NewsPage() {
       </div>
 
       <div className="space-y-4">
-        {newsItems.map((item) => (
+        {newsItems.length > 0 ? newsItems.map((item) => (
           <Card key={item.id} className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{item.company}</p>
-              <h2 className="mt-2 text-xl font-semibold">{item.headline}</h2>
+              <a href={item.url || undefined} target={item.url ? "_blank" : undefined} rel={item.url ? "noreferrer" : undefined} className="block text-xl font-semibold hover:text-sky-700">{item.headline}</a>
+              {item.summary ? <p className="mt-2 text-sm text-slate-600">{item.summary}</p> : null}
             </div>
             <div className="text-sm text-slate-500">
-              <p>{item.source}</p>
-              <p>{new Date(item.publishedAt).toLocaleString()}</p>
+              <p>{item.source ? item.source : "Market update"}</p>
+              <p>{item.publishedAt ? new Date(item.publishedAt).toLocaleString() : "Date unavailable"}</p>
             </div>
           </Card>
-        ))}
+        )) : <p className="text-sm text-slate-500">News is temporarily unavailable from the current data source.</p>}
       </div>
     </main>
   );

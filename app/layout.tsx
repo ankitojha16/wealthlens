@@ -16,16 +16,23 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "WealthLens | Indian market research",
   description: "WealthLens helps investors research Indian companies with market data, valuation metrics, historical performance, and contextual analysis.",
-  metadataBase: new URL("https://example.com"),
+  metadataBase: new URL("https://wealthlens-inky.vercel.app"),
+  icons: {
+    icon: "/wealthlens-logo.svg",
+    apple: "/wealthlens-logo.svg",
+  },
   openGraph: {
     title: "WealthLens",
     description: "See the business behind the stock.",
     type: "website",
+    url: "https://wealthlens-inky.vercel.app",
+    images: ["/wealthlens-logo.svg"],
   },
   twitter: {
     card: "summary_large_image",
     title: "WealthLens",
     description: "See the business behind the stock.",
+    images: ["/wealthlens-logo.svg"],
   },
 };
 

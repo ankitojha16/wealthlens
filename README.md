@@ -1,17 +1,17 @@
-# AlphaLens
+# WealthLens
 
 See the business behind the stock.
 
 ## Overview
 
-AlphaLens is a production-style financial research platform for Indian equities. It blends market overview, company research, charts, business metrics, valuation signals, and AI-guided analysis in a clean research workspace.
+WealthLens is a research platform for Indian equities. It blends market overview, company research, historical prices, company news, and analytical context in a focused research workspace.
 
 ## Features
 
 - Landing page and market dashboard
 - Company pages with core financial metrics
 - Search and market data overview
-- News summaries and research context
+- IndianAPI-backed company news and research context
 - Calculation utilities for return, CAGR, volatility, drawdown, beta, and Sharpe metrics
 - Provider abstraction and environment-driven configuration
 - Security guidance and deployment-ready structure
@@ -24,7 +24,7 @@ AlphaLens is a production-style financial research platform for Indian equities.
 - React 19
 - Lucide icons
 - Recharts and UI primitives
-- Supabase-ready architecture
+- Supabase client foundation
 
 ## Architecture
 
@@ -36,18 +36,26 @@ AlphaLens is a production-style financial research platform for Indian equities.
 
 ## Data providers
 
-AlphaLens is designed around provider abstraction and supports:
+WealthLens uses one primary market provider:
 
-- IndianAPI for live/delayed market information when available
-- TejHQ for EOD, historical, and company-data retrieval when available
-- Configurable news provider through environment variables
-- AI provider with env-based selection
+- IndianAPI for documented NSE/BSE company data, quotes, historical data, movers, and company news
+- TejHQ is configured only as a legacy credential and is not called by the application
+- `NEWS_API_KEY` is currently unused because no provider identity or integration exists for it
+- Google Gemini is the selected low-cost AI provider. Configure `AI_PROVIDER=google`, `AI_MODEL=gemini-2.5-flash`, and the server-only `GOOGLE_GEMINI_API_KEY` from Google AI Studio. The route returns verified context without an answer until these values are configured.
 
-Market availability depends on each provider and may be delayed or end-of-day.
+IndianAPI documents its stock and trending endpoints as real-time; historical data is historical. Unsupported metrics, including indices without a documented endpoint in the current integration, are shown as unavailable rather than fabricated.
+
+NIFTY/SENSEX and other market indices remain unavailable because the current IndianAPI integration has no documented index endpoint. Company pages prefer the verified NSE ticker for TradingView and show the provider error state when a symbol is unsupported.
+
+Research and settings require a Supabase session. The current repository has no user-owned tables or database writes; those operations must be added with reviewed RLS policies before they can be tested.
+
+The browser and SSR session clients use `NEXT_PUBLIC_SUPABASE_ANON_KEY`. If privileged server operations are added later, configure the Supabase dashboard Secret key (`sb_secret_...`) under `SUPABASE_SERVICE_ROLE_KEY`, on one uninterrupted environment-variable line. Never expose that key to client code.
 
 ## Environment variables
 
 Copy `.env.example` to `.env.local` and fill in the relevant values.
+
+For Gemini, create an API key in Google AI Studio, enable the Gemini API for its project, and add the key as `GOOGLE_GEMINI_API_KEY`. Keep `AI_PROVIDER`, `AI_MODEL`, and the key server-side. Do not paste the key into chat or use a `NEXT_PUBLIC_` prefix.
 
 ## Local development
 
@@ -69,7 +77,7 @@ This project is structured for Vercel deployment. Ensure environment variables a
 
 ## Data limitations
 
-AlphaLens uses external data providers where available. Data may be delayed, EOD, or unavailable, and should be treated as educational and analytical information rather than guaranteed live market data.
+IndianAPI data availability depends on the provider response and supported endpoint. Market data should be treated as educational and analytical information rather than guaranteed live market data.
 
 ## License
 

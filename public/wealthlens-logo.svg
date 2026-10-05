@@ -1,0 +1,93 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WealthLens emblem">
+  <defs>
+    <radialGradient id="navy" cx="50%" cy="42%" r="68%">
+      <stop offset="0%" stop-color="#143b65"/>
+      <stop offset="45%" stop-color="#0b2542"/>
+      <stop offset="100%" stop-color="#03101f"/>
+    </radialGradient>
+
+    <linearGradient id="goldOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8c5700"/>
+      <stop offset="16%" stop-color="#ffd968"/>
+      <stop offset="35%" stop-color="#fff0a0"/>
+      <stop offset="52%" stop-color="#d99a19"/>
+      <stop offset="68%" stop-color="#ffcf4b"/>
+      <stop offset="100%" stop-color="#8c5700"/>
+    </linearGradient>
+
+    <linearGradient id="goldBright" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff6c4"/>
+      <stop offset="28%" stop-color="#ffd75b"/>
+      <stop offset="58%" stop-color="#d99a19"/>
+      <stop offset="100%" stop-color="#8d5901"/>
+    </linearGradient>
+
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.58"/>
+    </filter>
+
+    <g id="tickSmall">
+      <line x1="256" y1="91" x2="256" y2="100" stroke="#f0bf39" stroke-width="2" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <circle cx="256" cy="256" r="245" fill="url(#navy)" stroke="url(#goldOuter)" stroke-width="10" filter="url(#shadow)"/>
+
+  <circle cx="256" cy="256" r="146" fill="none" stroke="url(#goldBright)" stroke-width="10" opacity="0.95"/>
+  <circle cx="256" cy="256" r="119" fill="none" stroke="#d89a19" stroke-width="2" opacity="0.9"/>
+
+  <g opacity="0.9">
+    <use href="#tickSmall"/>
+    <use href="#tickSmall" transform="rotate(10 256 256)"/>
+    <use href="#tickSmall" transform="rotate(20 256 256)"/>
+    <use href="#tickSmall" transform="rotate(30 256 256)"/>
+    <use href="#tickSmall" transform="rotate(40 256 256)"/>
+    <use href="#tickSmall" transform="rotate(50 256 256)"/>
+    <use href="#tickSmall" transform="rotate(60 256 256)"/>
+    <use href="#tickSmall" transform="rotate(70 256 256)"/>
+    <use href="#tickSmall" transform="rotate(80 256 256)"/>
+    <use href="#tickSmall" transform="rotate(90 256 256)"/>
+    <use href="#tickSmall" transform="rotate(100 256 256)"/>
+    <use href="#tickSmall" transform="rotate(110 256 256)"/>
+    <use href="#tickSmall" transform="rotate(120 256 256)"/>
+    <use href="#tickSmall" transform="rotate(130 256 256)"/>
+    <use href="#tickSmall" transform="rotate(140 256 256)"/>
+    <use href="#tickSmall" transform="rotate(150 256 256)"/>
+    <use href="#tickSmall" transform="rotate(160 256 256)"/>
+    <use href="#tickSmall" transform="rotate(170 256 256)"/>
+    <use href="#tickSmall" transform="rotate(180 256 256)"/>
+    <use href="#tickSmall" transform="rotate(190 256 256)"/>
+    <use href="#tickSmall" transform="rotate(200 256 256)"/>
+    <use href="#tickSmall" transform="rotate(210 256 256)"/>
+    <use href="#tickSmall" transform="rotate(220 256 256)"/>
+    <use href="#tickSmall" transform="rotate(230 256 256)"/>
+    <use href="#tickSmall" transform="rotate(240 256 256)"/>
+    <use href="#tickSmall" transform="rotate(250 256 256)"/>
+    <use href="#tickSmall" transform="rotate(260 256 256)"/>
+    <use href="#tickSmall" transform="rotate(270 256 256)"/>
+    <use href="#tickSmall" transform="rotate(280 256 256)"/>
+    <use href="#tickSmall" transform="rotate(290 256 256)"/>
+    <use href="#tickSmall" transform="rotate(300 256 256)"/>
+    <use href="#tickSmall" transform="rotate(310 256 256)"/>
+    <use href="#tickSmall" transform="rotate(320 256 256)"/>
+    <use href="#tickSmall" transform="rotate(330 256 256)"/>
+    <use href="#tickSmall" transform="rotate(340 256 256)"/>
+    <use href="#tickSmall" transform="rotate(350 256 256)"/>
+  </g>
+
+  <g fill="url(#goldBright)" filter="url(#softShadow)">
+    <path d="M256 36 L274 118 L256 106 L238 118 Z"/>
+    <path d="M476 256 L392 274 L405 256 L392 238 Z"/>
+    <path d="M256 476 L238 394 L256 407 L274 394 Z"/>
+    <path d="M36 256 L120 238 L107 256 L120 274 Z"/>
+  </g>
+
+  <circle cx="256" cy="256" r="126" fill="none" stroke="#ffd34e" stroke-width="1.5" opacity="0.8"/>
+
+  <text x="256" y="302" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="188" font-weight="700" fill="#000000" opacity="0.5" transform="translate(4 7)">W</text>
+  <text x="256" y="302" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="188" font-weight="700" fill="url(#goldBright)" stroke="#f5c94b" stroke-width="1">W</text>
+</svg>

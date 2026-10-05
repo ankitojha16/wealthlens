@@ -31,7 +31,7 @@ export function MarketOverview({ indices }: { indices: MarketIndex[] }) {
           <div className="mt-4 space-y-2">
             {indices.slice(0, 3).map((item) => (
               <div key={item.symbol} className="flex items-center justify-between text-sm">
-                <span className="font-medium">{item.symbol}</span>
+                <span className="font-medium">{item.name}</span>
                 <span className="text-emerald-600">{item.percentChange === null ? "—" : `${item.percentChange >= 0 ? "+" : ""}${item.percentChange.toFixed(2)}%`}</span>
               </div>
             ))}
@@ -43,7 +43,7 @@ export function MarketOverview({ indices }: { indices: MarketIndex[] }) {
           <div className="mt-4 space-y-2">
             {indices.slice(0, 3).map((item) => (
               <div key={item.symbol} className="flex items-center justify-between text-sm">
-                <span className="font-medium">{item.symbol}</span>
+                <span className="font-medium">{item.name}</span>
                 <span className="text-red-600">{item.percentChange === null ? "—" : `${item.percentChange < 0 ? "" : "-"}${Math.abs(item.percentChange).toFixed(2)}%`}</span>
               </div>
             ))}

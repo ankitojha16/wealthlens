@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f4fff7;
+  --foreground: #000000;
+  --muted: #1f2937;
+  --card: #ffffff;
+  --border: rgba(50, 205, 50, 0.18);
+  --forest: #013220;
+  --forest-deep: #041d14;
+  --lime: #32cd32;
+  --lime-bright: #89f336;
+  --lime-soft: #eafee9;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -14,11 +23,14 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background:
+    radial-gradient(circle at top, rgba(137, 243, 54, 0.12), transparent 30%),
+    linear-gradient(180deg, #f9fff9 0%, #f1fff6 100%);
+  color: #000000;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -26,6 +38,40 @@ body {
   box-sizing: border-box;
 }
 
-input, button, a {
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+span,
+a,
+button,
+input,
+textarea,
+select,
+li,
+td,
+th,
+div {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+input,
+textarea,
+select,
+button,
+a {
   transition: all 0.2s ease;
+}
+
+::placeholder {
+  color: rgba(15, 23, 42, 0.56);
 }
