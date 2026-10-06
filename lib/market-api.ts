@@ -268,7 +268,18 @@ export function normalizeQuote(payload: IndianStockResponse, symbol: string): Qu
 export async function getStockPayload(symbol: string): Promise<IndianStockResponse | null> {
   const value = resolveStockSymbol(symbol || "");
   if (!value) return null;
-  return requestJson<IndianStockResponse>(`/stock?name=${encodeURIComponent(value)}`);
+  const cacheKey = `market:stock:${value}`;
+  const cached = getCachedValue<IndianStockResponse>(cacheKey);
+  if (cached) return cached;
+
+  return withRequestDeduplication(cacheKey, async () => {
+    const cachedPayload = getCachedValue<IndianStockResponse>(cacheKey);
+    if (cachedPayload) return cachedPayload;
+
+    const payload = await requestJson<IndianStockResponse>(`/stock?name=${encodeURIComponent(value)}`);
+    if (payload) setCachedValue(cacheKey, payload, 300000);
+    return payload;
+  });
 }
 
 export async function getQuote(symbol: string): Promise<Quote | null> {

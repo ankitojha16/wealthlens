@@ -16,41 +16,59 @@ type GeminiResponse = {
 
 type ConversationTurn = { question: string; answer: string };
 
+function retryDelay(response: Response) {
+  const retryAfter = Number(response.headers.get("Retry-After"));
+  return Number.isFinite(retryAfter) && retryAfter > 0
+    ? Math.min(retryAfter * 1000, 2000)
+    : 1000;
+}
+
 async function generateGeminiAnswer(question: string, context: unknown, conversation: ConversationTurn[]) {
   const config = getGeminiConfig();
   if (!config) return null;
 
-  let response: Response;
-  try {
-    const prompt = [
-      ...(conversation.length > 0 ? [
-        `Conversation so far (use only to understand references in the current question; prior answers are not verified evidence):\n${conversation.map((turn) => `User: ${turn.question}\nAssistant: ${turn.answer}`).join("\n\n")}`,
-      ] : []),
-      `Answer this exact question: ${question}`,
-      `Use only this verified context as factual evidence:\n${JSON.stringify(context)}`,
-    ].join("\n\n");
-    response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": config.apiKey,
-      },
-      body: JSON.stringify({
-        model: config.model,
-        input: prompt,
-        system_instruction: "You are WealthLens Research Assistant. Answer the user's exact question using only the verified company context provided. Start with a concise direct answer, then give 2-3 distinct, question-specific evidence-based observations. Do not reuse a generic template: make the response materially different when the question asks about different topics such as price trends, valuation, debt, peers, or news. Cite the context values or dates that support each point. If the context does not contain evidence needed for the question, say what is missing instead of filling space with a general summary. Separate facts from interpretations. Do not invent facts, prices, news, or provide investment recommendations.",
-        generation_config: { temperature: 0.7, max_output_tokens: 1600 },
-        store: false,
-      }),
-      cache: "no-store",
-      signal: AbortSignal.timeout(20000),
-    });
-  } catch (error) {
-    const reason = error instanceof Error && error.name === "TimeoutError"
-      ? "Google Gemini did not respond before the request timed out."
-      : "Could not connect to Google Gemini. Check the provider network and configuration.";
-    return { error: reason, status: 502 };
+  const prompt = [
+    ...(conversation.length > 0 ? [
+      `Conversation so far (use only to understand references in the current question; prior answers are not verified evidence):\n${conversation.map((turn) => `User: ${turn.question}\nAssistant: ${turn.answer}`).join("\n\n")}`,
+    ] : []),
+    `Answer this exact question: ${question}`,
+    `Use only this verified context as factual evidence:\n${JSON.stringify(context)}`,
+  ].join("\n\n");
+  const requestBody = JSON.stringify({
+    model: config.model,
+    input: prompt,
+    system_instruction: "You are WealthLens Research Assistant. Answer the user's exact question using only the verified company context provided. Start with a concise direct answer, then give 2-3 distinct, question-specific evidence-based observations. Do not reuse a generic template: make the response materially different when the question asks about different topics such as price trends, valuation, debt, peers, or news. Cite the context values or dates that support each point. If the context does not contain evidence needed for the question, say what is missing instead of filling space with a general summary. Separate facts from interpretations. Do not invent facts, prices, news, or provide investment recommendations.",
+    generation_config: { temperature: 0.7, max_output_tokens: 1600 },
+    store: false,
+  });
+
+  let response: Response | undefined;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": config.apiKey,
+        },
+        body: requestBody,
+        cache: "no-store",
+        signal: AbortSignal.timeout(15000),
+      });
+    } catch (error) {
+      const reason = error instanceof Error && error.name === "TimeoutError"
+        ? "Google Gemini did not respond before the request timed out."
+        : "Could not connect to Google Gemini. Check the provider network and configuration.";
+      return { error: reason, status: 502 };
+    }
+
+    const retryable = [429, 500, 502, 503, 504].includes(response.status);
+    if (!retryable || attempt === 1) break;
+    const delay = retryDelay(response);
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
+
+  if (!response) return { error: "Google Gemini did not return a response.", status: 502 };
 
   let payload: GeminiResponse;
   try {
@@ -114,7 +132,9 @@ export async function POST(request: Request) {
     ]);
 
     if (!company || !quote) {
-      return Response.json({ error: "Verified IndianAPI data is unavailable for this symbol." }, { status: 404 });
+      return Response.json({
+        error: "The market data provider did not return current research data for this verified symbol. Please try again shortly.",
+      }, { status: 503 });
     }
 
     const verifiedContext = {
