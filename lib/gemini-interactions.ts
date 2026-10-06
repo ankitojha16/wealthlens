@@ -7,13 +7,14 @@ type InteractionOutput = {
 type InteractionResponse = {
   output_text?: string;
   outputs?: InteractionOutput[];
+  steps?: InteractionOutput[];
 };
 
 export function getInteractionText(response: InteractionResponse): string | null {
   const directText = response.output_text?.trim();
   if (directText) return directText;
 
-  const text = response.outputs
+  const text = (response.steps ?? response.outputs)
     ?.flatMap((output) => {
       if (output.type === "text" && output.text) return [output.text];
       return output.content

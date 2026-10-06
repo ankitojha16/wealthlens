@@ -8,8 +8,6 @@ export function getGeminiConfig(env: Record<string, string | undefined> = proces
   const configuredModel = env.AI_MODEL?.trim();
   return {
     apiKey,
-    model: configuredModel === "gemini-3.8-flash"
-      ? "gemini-3.1-flash-lite"
-      : configuredModel || "gemini-3.1-flash-lite",
+    model: configuredModel || "gemini-3.8-flash",
   };
 }

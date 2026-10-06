@@ -6,6 +6,11 @@ import { getInteractionText } from "@/lib/gemini-interactions";
 type GeminiResponse = {
   error?: { message?: string };
   status?: string;
+  steps?: Array<{
+    type?: string;
+    text?: string;
+    content?: Array<{ type?: string; text?: string }>;
+  }>;
   outputs?: Array<{
     type?: string;
     text?: string;
@@ -34,8 +39,8 @@ async function generateGeminiAnswer(question: string, context: unknown, conversa
     `Answer this exact question: ${question}`,
     `Use only this verified context as factual evidence:\n${JSON.stringify(context)}`,
   ].join("\n\n");
-  const requestBody = JSON.stringify({
-    model: config.model,
+  const requestBody = (model: string) => JSON.stringify({
+    model,
     input: prompt,
     system_instruction: "You are WealthLens Research Assistant. Answer the user's exact question using only the verified company context provided. Start with a concise direct answer, then give 2-3 distinct, question-specific evidence-based observations. Do not reuse a generic template: make the response materially different when the question asks about different topics such as price trends, valuation, debt, peers, or news. Cite the context values or dates that support each point. If the context does not contain evidence needed for the question, say what is missing instead of filling space with a general summary. Separate facts from interpretations. Do not invent facts, prices, news, or provide investment recommendations.",
     generation_config: { temperature: 0.7, max_output_tokens: 1600 },
@@ -45,13 +50,16 @@ async function generateGeminiAnswer(question: string, context: unknown, conversa
   let response: Response | undefined;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
+      const model = attempt === 1 && config.model !== "gemini-3.1-flash-lite"
+        ? "gemini-3.1-flash-lite"
+        : config.model;
       response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-goog-api-key": config.apiKey,
         },
-        body: requestBody,
+        body: requestBody(model),
         cache: "no-store",
         signal: AbortSignal.timeout(15000),
       });
