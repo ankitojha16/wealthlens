@@ -1,14 +1,17 @@
 import { getCompanyResearch, getHistoricalData, getNews, getQuote } from "@/lib/market-api";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 import { getGeminiConfig } from "@/lib/ai-provider";
+import { getInteractionText } from "@/lib/gemini-interactions";
 
 type GeminiResponse = {
   error?: { message?: string };
-  promptFeedback?: { blockReason?: string };
-  candidates?: Array<{
-    finishReason?: string;
-    content?: { parts?: Array<{ text?: string }> };
+  status?: string;
+  outputs?: Array<{
+    type?: string;
+    text?: string;
+    content?: Array<{ type?: string; text?: string }>;
   }>;
+  output_text?: string;
 };
 
 type ConversationTurn = { question: string; answer: string };
@@ -19,25 +22,25 @@ async function generateGeminiAnswer(question: string, context: unknown, conversa
 
   let response: Response;
   try {
-    const companyContext = JSON.stringify(context);
-    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`, {
+    const prompt = [
+      ...(conversation.length > 0 ? [
+        `Conversation so far (use only to understand references in the current question; prior answers are not verified evidence):\n${conversation.map((turn) => `User: ${turn.question}\nAssistant: ${turn.answer}`).join("\n\n")}`,
+      ] : []),
+      `Answer this exact question: ${question}`,
+      `Use only this verified context as factual evidence:\n${JSON.stringify(context)}`,
+    ].join("\n\n");
+    response = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": config.apiKey,
+      },
       body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: "You are WealthLens Research Assistant. Answer the user's exact question using only the verified company context provided. Start with a concise direct answer, then give 2-3 distinct, question-specific evidence-based observations. Do not reuse a generic template: make the response materially different when the question asks about different topics such as price trends, valuation, debt, peers, or news. Cite the context values or dates that support each point. If the context does not contain evidence needed for the question, say what is missing instead of filling space with a general summary. Separate facts from interpretations. Do not invent facts, prices, news, or provide investment recommendations." }],
-        },
-        contents: [{
-          role: "user",
-          parts: [
-            ...(conversation.length > 0 ? [{
-              text: `Conversation so far (use only to understand references in the current question; prior answers are not verified evidence):\n${conversation.map((turn) => `User: ${turn.question}\nAssistant: ${turn.answer}`).join("\n\n")}`,
-            }] : []),
-            { text: `Answer this exact question: ${question}` },
-            { text: `Use only this verified context as factual evidence:\n${companyContext}` },
-          ],
-        }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1600 },
+        model: config.model,
+        input: prompt,
+        system_instruction: "You are WealthLens Research Assistant. Answer the user's exact question using only the verified company context provided. Start with a concise direct answer, then give 2-3 distinct, question-specific evidence-based observations. Do not reuse a generic template: make the response materially different when the question asks about different topics such as price trends, valuation, debt, peers, or news. Cite the context values or dates that support each point. If the context does not contain evidence needed for the question, say what is missing instead of filling space with a general summary. Separate facts from interpretations. Do not invent facts, prices, news, or provide investment recommendations.",
+        generation_config: { temperature: 0.7, max_output_tokens: 1600 },
+        store: false,
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(20000),
@@ -64,13 +67,13 @@ async function generateGeminiAnswer(question: string, context: unknown, conversa
     };
   }
 
-  const answer = payload.candidates?.[0]?.content?.parts?.map((part) => part.text?.trim()).filter((text): text is string => Boolean(text)).join("\n");
+  const answer = getInteractionText(payload);
   if (answer) return answer;
 
-  const reason = payload.promptFeedback?.blockReason ?? payload.candidates?.[0]?.finishReason;
+  const reason = payload.status;
   return {
     error: reason
-      ? `Google Gemini did not generate an answer (${reason}). Try rephrasing the question.`
+      ? `Google Gemini did not complete the interaction (${reason}). Try rephrasing the question.`
       : "Google Gemini returned no answer. Try rephrasing the question or check the configured model.",
     status: 502,
   };

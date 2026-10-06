@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { getGeminiConfig } from "./ai-provider";
 
 describe("getGeminiConfig", () => {
-  it("uses AI_API_KEY for the default Google provider", () => {
+  it("uses AI_API_KEY and Gemini 3.8 Flash by default for Google", () => {
     expect(getGeminiConfig({ AI_API_KEY: "gemini-key" })).toEqual({
       apiKey: "gemini-key",
-      model: "gemini-2.5-flash",
+      model: "gemini-3.8-flash",
     });
   });
 
