@@ -201,8 +201,8 @@ export default async function HomePage() {
             </Card>
           </Link>
           <Link href="/portfolio" className="block">
-            <Card className="h-full border-[#f3a6c8] bg-[#fff6fa] p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#ec78ac] hover:shadow-md">
-              <TrendingUp className="mb-4 h-8 w-8 text-[#be185d]" />
+            <Card className="h-full border-[#32CD32]/20 bg-white p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#32CD32]/50 hover:shadow-md">
+              <TrendingUp className="mb-4 h-8 w-8 text-[#006400]" />
               <h3 className="text-lg font-semibold text-[#000000]">Portfolio insights</h3>
               <p className="mt-2 text-sm text-[#1F2937]">Compare holdings, sector weights, and risk using analytical reporting built for research.</p>
             </Card>

@@ -129,7 +129,7 @@ export function HoldingsManager() {
       <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.2em] text-emerald-200">Portfolio</p>
-          <h1 className="mt-2 text-3xl font-semibold text-white">Holdings overview</h1>
+          <h1 className="mt-2 text-3xl font-semibold text-[#f4a6c8]">Holdings overview</h1>
         </div>
         <div className="rounded-full border border-emerald-500/20 bg-[#041f1d] px-3 py-1 text-xs text-emerald-100/80">
           Auto price refresh from market API
