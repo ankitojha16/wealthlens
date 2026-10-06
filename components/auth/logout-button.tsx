@@ -13,5 +13,5 @@ export function LogoutButton() {
     router.refresh();
   }
 
-  return <Button type="button" onClick={handleLogout}>Log out</Button>;
+  return <Button type="button" onClick={handleLogout} className="border-[#f3a6c8] bg-[#fce7f3] text-[#831843] hover:border-[#ec78ac] hover:bg-[#fbcfe8]">Log out</Button>;
 }

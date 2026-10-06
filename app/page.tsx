@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BarChart3, Search, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, BarChart3, Calculator, Search, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LogoutButton } from "@/components/auth/logout-button";
 import ResearchClient from "@/app/research/research-client";
+import { FinancialCalculator } from "@/components/calculators/financial-calculator";
 import { getMarketMovers, getNews } from "@/lib/market-api";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
@@ -48,10 +49,11 @@ export default async function HomePage() {
             <Link href="/markets" className="hover:text-white">Markets</Link>
             <Link href="/search" className="hover:text-white">Search</Link>
             <Link href="/news" className="hover:text-white">News</Link>
+            <a href="#calculators" className="hover:text-white">Calculator</a>
           </nav>
 
           <div className="flex items-center gap-2">
-            {user ? <LogoutButton /> : <Link href="/login"><Button className="border-0 bg-[#32CD32] text-[#013220] hover:bg-[#89F336]">Login</Button></Link>}
+            {user ? <LogoutButton /> : <Link href="/login"><Button className="border-[#f3a6c8] bg-[#fce7f3] text-[#831843] hover:border-[#ec78ac] hover:bg-[#fbcfe8]">Login</Button></Link>}
             <Link href="/markets"><Button className="border border-white/20 bg-white/5 text-white hover:bg-white/10">Explore Markets</Button></Link>
           </div>
         </div>
@@ -190,7 +192,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-8">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <Link href="/markets" className="block">
             <Card className="h-full border-[#32CD32]/20 bg-white p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#32CD32]/50 hover:shadow-md">
               <BarChart3 className="mb-4 h-8 w-8 text-[#32CD32]" />
@@ -199,8 +201,8 @@ export default async function HomePage() {
             </Card>
           </Link>
           <Link href="/portfolio" className="block">
-            <Card className="h-full border-[#32CD32]/20 bg-white p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#32CD32]/50 hover:shadow-md">
-              <TrendingUp className="mb-4 h-8 w-8 text-[#006400]" />
+            <Card className="h-full border-[#f3a6c8] bg-[#fff6fa] p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#ec78ac] hover:shadow-md">
+              <TrendingUp className="mb-4 h-8 w-8 text-[#be185d]" />
               <h3 className="text-lg font-semibold text-[#000000]">Portfolio insights</h3>
               <p className="mt-2 text-sm text-[#1F2937]">Compare holdings, sector weights, and risk using analytical reporting built for research.</p>
             </Card>
@@ -212,8 +214,17 @@ export default async function HomePage() {
               <p className="mt-2 text-sm text-[#1F2937]">Verify a listed company, then ask questions about its price, financials, news, and more.</p>
             </Card>
           </a>
+          <a href="#calculators" className="block">
+            <Card className="h-full border-[#32CD32]/20 bg-white p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#32CD32]/50 hover:shadow-md">
+              <Calculator className="mb-4 h-8 w-8 text-[#006400]" />
+              <h3 className="text-lg font-semibold text-[#000000]">Financial calculators</h3>
+              <p className="mt-2 text-sm text-[#1F2937]">Estimate SIP, SWP, lump-sum, FD, and loan EMI outcomes, with clear explanations.</p>
+            </Card>
+          </a>
         </div>
       </section>
+
+      <FinancialCalculator />
 
       <ResearchClient isAuthenticated={Boolean(user)} />
 
