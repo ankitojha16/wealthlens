@@ -5,8 +5,11 @@ export function getGeminiConfig(env: Record<string, string | undefined> = proces
   const apiKey = env.GOOGLE_GEMINI_API_KEY?.trim() || env.AI_API_KEY?.trim();
   if (!apiKey) return null;
 
+  const configuredModel = env.AI_MODEL?.trim();
   return {
     apiKey,
-    model: env.AI_MODEL?.trim() || "gemini-3.8-flash",
+    model: configuredModel === "gemini-3.8-flash"
+      ? "gemini-3-flash-preview"
+      : configuredModel || "gemini-3-flash-preview",
   };
 }
