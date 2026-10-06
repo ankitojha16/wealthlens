@@ -11,12 +11,15 @@ type GeminiResponse = {
   }>;
 };
 
-async function generateGeminiAnswer(question: string, context: unknown) {
+type ConversationTurn = { question: string; answer: string };
+
+async function generateGeminiAnswer(question: string, context: unknown, conversation: ConversationTurn[]) {
   const config = getGeminiConfig();
   if (!config) return null;
 
   let response: Response;
   try {
+    const companyContext = JSON.stringify(context);
     response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -27,8 +30,11 @@ async function generateGeminiAnswer(question: string, context: unknown) {
         contents: [{
           role: "user",
           parts: [
+            ...(conversation.length > 0 ? [{
+              text: `Conversation so far (use only to understand references in the current question; prior answers are not verified evidence):\n${conversation.map((turn) => `User: ${turn.question}\nAssistant: ${turn.answer}`).join("\n\n")}`,
+            }] : []),
             { text: `Answer this exact question: ${question}` },
-            { text: `Use only this verified context as evidence:\n${JSON.stringify(context)}` },
+            { text: `Use only this verified context as factual evidence:\n${companyContext}` },
           ],
         }],
         generationConfig: { temperature: 0.7, maxOutputTokens: 1600 },
@@ -75,12 +81,27 @@ export async function POST(request: Request) {
     const { data: { user } } = await (await getSupabaseServerClient()).auth.getUser();
     if (!user) return Response.json({ error: "Authentication is required." }, { status: 401 });
 
-    const body = await request.json() as { symbol?: unknown; question?: unknown };
+    const body = await request.json() as {
+      symbol?: unknown;
+      question?: unknown;
+      conversation?: unknown;
+    };
     const symbol = typeof body.symbol === "string" ? body.symbol.trim().toUpperCase() : "";
     const question = typeof body.question === "string" ? body.question.trim() : "";
     if (!symbol || !question) {
       return Response.json({ error: "A symbol and question are required." }, { status: 400 });
     }
+    if (question.length > 1000) {
+      return Response.json({ error: "Keep questions under 1,000 characters." }, { status: 400 });
+    }
+    const conversation: ConversationTurn[] = Array.isArray(body.conversation)
+      ? body.conversation.slice(-4).flatMap((turn): ConversationTurn[] => {
+        if (!turn || typeof turn !== "object") return [];
+        const { question: previousQuestion, answer: previousAnswer } = turn as Record<string, unknown>;
+        if (typeof previousQuestion !== "string" || typeof previousAnswer !== "string") return [];
+        return [{ question: previousQuestion.slice(0, 1000), answer: previousAnswer.slice(0, 3000) }];
+      })
+      : [];
 
     const [company, quote, news, history] = await Promise.all([
       getCompanyResearch(symbol),
@@ -106,7 +127,7 @@ export async function POST(request: Request) {
       }, { status: 503 });
     }
 
-    const answer = await generateGeminiAnswer(question, verifiedContext);
+    const answer = await generateGeminiAnswer(question, verifiedContext, conversation);
     if (typeof answer !== "string") {
       return Response.json({ error: answer?.error ?? "The configured AI provider did not return an answer.", verifiedContext }, { status: answer?.status ?? 502 });
     }

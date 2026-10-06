@@ -4,6 +4,7 @@ import { ArrowRight, BarChart3, Search, Sparkles, TrendingUp } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LogoutButton } from "@/components/auth/logout-button";
+import ResearchClient from "@/app/research/research-client";
 import { getMarketMovers, getNews } from "@/lib/market-api";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
@@ -47,7 +48,6 @@ export default async function HomePage() {
             <Link href="/markets" className="hover:text-white">Markets</Link>
             <Link href="/search" className="hover:text-white">Search</Link>
             <Link href="/news" className="hover:text-white">News</Link>
-            <Link href="/research" className="hover:text-white">Research</Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 pb-16">
+      <section className="mx-auto max-w-7xl px-6 pb-8">
         <div className="grid gap-6 md:grid-cols-3">
           <Link href="/markets" className="block">
             <Card className="h-full border-[#32CD32]/20 bg-white p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#32CD32]/50 hover:shadow-md">
@@ -205,15 +205,17 @@ export default async function HomePage() {
               <p className="mt-2 text-sm text-[#1F2937]">Compare holdings, sector weights, and risk using analytical reporting built for research.</p>
             </Card>
           </Link>
-          <Link href="/research" className="block">
+          <a href="#ai-research" className="block">
             <Card className="h-full border-[#32CD32]/20 bg-white p-5 text-[#000000] transition hover:-translate-y-0.5 hover:border-[#32CD32]/50 hover:shadow-md">
               <Search className="mb-4 h-8 w-8 text-[#006400]" />
               <h3 className="text-lg font-semibold text-[#000000]">AI research</h3>
-              <p className="mt-2 text-sm text-[#1F2937]">Ask contextual questions about revenue, leverage, recent developments, and peer comparisons.</p>
+              <p className="mt-2 text-sm text-[#1F2937]">Verify a listed company, then ask questions about its price, financials, news, and more.</p>
             </Card>
-          </Link>
+          </a>
         </div>
       </section>
+
+      <ResearchClient isAuthenticated={Boolean(user)} />
 
       <footer className="border-t border-[#0c4d2e]/10 bg-[#013220] text-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 px-6 py-8 text-sm text-emerald-50/80 md:flex-row">
