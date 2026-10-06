@@ -9,7 +9,7 @@ export function getGeminiConfig(env: Record<string, string | undefined> = proces
   return {
     apiKey,
     model: configuredModel === "gemini-3.8-flash"
-      ? "gemini-3-flash-preview"
-      : configuredModel || "gemini-3-flash-preview",
+      ? "gemini-3.1-flash-lite"
+      : configuredModel || "gemini-3.1-flash-lite",
   };
 }
