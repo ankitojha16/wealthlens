@@ -41,7 +41,7 @@ WealthLens uses one primary market provider:
 - IndianAPI for documented NSE/BSE company data, quotes, historical data, movers, and company news
 - TejHQ is configured only as a legacy credential and is not called by the application
 - `NEWS_API_KEY` is currently unused because no provider identity or integration exists for it
-- Google Gemini is the selected low-cost AI provider. Configure `AI_PROVIDER=google`, `AI_MODEL=gemini-2.5-flash`, and the server-only `GOOGLE_GEMINI_API_KEY` from Google AI Studio. The route returns verified context without an answer until these values are configured.
+- Google Gemini is the selected low-cost AI provider. Configure `AI_PROVIDER=google`, `AI_MODEL=gemini-2.5-flash`, and a server-only key from Google AI Studio. The app accepts `GOOGLE_GEMINI_API_KEY` or the generic `AI_API_KEY` as the Gemini key (the explicit Google key takes precedence). The route returns verified context without an answer until a supported key is configured.
 
 IndianAPI documents its stock and trending endpoints as real-time; historical data is historical. Unsupported metrics, including indices without a documented endpoint in the current integration, are shown as unavailable rather than fabricated.
 

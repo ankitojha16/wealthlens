@@ -1,5 +1,6 @@
 import { getCompanyResearch, getNews, getQuote } from "@/lib/market-api";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
+import { getGeminiConfig } from "@/lib/ai-provider";
 
 type GeminiResponse = {
   candidates?: Array<{
@@ -8,22 +9,21 @@ type GeminiResponse = {
 };
 
 async function generateGeminiAnswer(question: string, context: unknown) {
-  const apiKey = process.env.GOOGLE_GEMINI_API_KEY?.trim();
-  const model = process.env.AI_MODEL?.trim() || "gemini-2.5-flash";
-  if (process.env.AI_PROVIDER?.trim().toLowerCase() !== "google" || !apiKey) return null;
+  const config = getGeminiConfig();
+  if (!config) return null;
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent?key=${encodeURIComponent(config.apiKey)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       systemInstruction: {
-        parts: [{ text: "You are WealthLens Research Assistant. Answer only from the verified IndianAPI context provided. Clearly say when context is insufficient. Do not invent facts, prices, news, or investment recommendations." }],
+        parts: [{ text: "You are WealthLens Research Assistant. Answer the user's specific question using only the verified IndianAPI context provided. Give a direct answer followed by 2-3 distinct evidence-based analytical perspectives or contributing factors relevant to that question. Explain what the data supports, distinguish plausible interpretations from established facts, and say clearly when context is insufficient. Do not repeat a generic company summary, invent facts, prices, news, or provide investment recommendations." }],
       },
       contents: [{
         role: "user",
         parts: [{ text: `Question: ${question}\n\nVerified context:\n${JSON.stringify(context)}` }],
       }],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 800 },
+      generationConfig: { temperature: 0.4, maxOutputTokens: 1200 },
     }),
     cache: "no-store",
     signal: AbortSignal.timeout(15000),
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     }
 
     const verifiedContext = { company, quote, news: news.slice(0, 5) };
-    if (process.env.AI_PROVIDER?.trim().toLowerCase() !== "google" || !process.env.GOOGLE_GEMINI_API_KEY?.trim()) {
+    if (!getGeminiConfig()) {
       return Response.json({
         error: "AI provider is not configured. Verified context was retrieved, but no generated answer was produced.",
         verifiedContext,

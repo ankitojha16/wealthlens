@@ -14,12 +14,6 @@ type Holding = {
 
 const STORAGE_KEY = "wealthlens-holdings";
 
-const defaultHoldings: Holding[] = [
-  { symbol: "TCS", name: "Tata Consultancy Services", quantity: 12, avgCost: 3520, currentPrice: null },
-  { symbol: "RELIANCE", name: "Reliance Industries", quantity: 8, avgCost: 2790, currentPrice: null },
-  { symbol: "HDFCBANK", name: "HDFC Bank", quantity: 18, avgCost: 1645, currentPrice: null },
-];
-
 function formatCurrency(value: number | null | undefined) {
   if (value === null || value === undefined || Number.isNaN(value)) return "₹0";
   return `₹${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(value)}`;
@@ -27,25 +21,26 @@ function formatCurrency(value: number | null | undefined) {
 
 export function HoldingsManager() {
   const [holdings, setHoldings] = useState<Holding[]>(() => {
-    if (typeof window === "undefined") return defaultHoldings;
+    if (typeof window === "undefined") return [];
 
     try {
       const rawValue = window.localStorage.getItem(STORAGE_KEY);
-      if (!rawValue) return defaultHoldings;
-      const parsed = JSON.parse(rawValue) as Holding[];
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((item) => ({ ...item, currentPrice: typeof item.currentPrice === "number" ? item.currentPrice : null }));
+      if (rawValue) {
+        const parsed = JSON.parse(rawValue) as Holding[];
+        if (Array.isArray(parsed)) {
+          return parsed.map((item) => ({ ...item, currentPrice: typeof item.currentPrice === "number" ? item.currentPrice : null }));
+        }
       }
     } catch {
       // Ignore malformed local storage data.
     }
 
-    return defaultHoldings;
+    return [];
   });
-  const [symbol, setSymbol] = useState("TCS");
-  const [name, setName] = useState("Tata Consultancy Services");
-  const [quantity, setQuantity] = useState(5);
-  const [avgCost, setAvgCost] = useState(3800);
+  const [symbol, setSymbol] = useState("");
+  const [name, setName] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [avgCost, setAvgCost] = useState(0);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -177,7 +172,11 @@ export function HoldingsManager() {
           </div>
 
           <div className="space-y-3">
-            {holdings.map((holding) => {
+            {holdings.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-emerald-500/20 bg-[#041f1d] p-4 text-sm text-[#E5E7EB]">
+                No holdings yet. Add a company you own to start tracking your portfolio.
+              </p>
+            ) : holdings.map((holding) => {
               const value = holding.quantity * (holding.currentPrice ?? 0);
               const invested = holding.quantity * holding.avgCost;
               const pnl = value - invested;
@@ -221,12 +220,12 @@ export function HoldingsManager() {
           <div className="space-y-3">
             <label className="block text-sm text-[#E5E7EB]">
               Stock symbol
-              <input value={symbol} onChange={(event) => setSymbol(event.target.value.toUpperCase())} className="mt-1 w-full rounded-lg border border-emerald-500/20 bg-[#041f1d] px-3 py-2 text-white outline-none placeholder:text-emerald-100/40" placeholder="HDFCBANK" />
+              <input value={symbol} onChange={(event) => setSymbol(event.target.value.toUpperCase())} className="mt-1 w-full rounded-lg border border-emerald-500/20 bg-[#041f1d] px-3 py-2 text-white outline-none placeholder:text-emerald-100/40" placeholder="e.g. HDFCBANK" />
             </label>
 
             <label className="block text-sm text-[#E5E7EB]">
               Company name
-              <input value={name} onChange={(event) => setName(event.target.value)} className="mt-1 w-full rounded-lg border border-emerald-500/20 bg-[#041f1d] px-3 py-2 text-white outline-none placeholder:text-emerald-100/40" placeholder="HDFC Bank" />
+              <input value={name} onChange={(event) => setName(event.target.value)} className="mt-1 w-full rounded-lg border border-emerald-500/20 bg-[#041f1d] px-3 py-2 text-white outline-none placeholder:text-emerald-100/40" placeholder="e.g. HDFC Bank" />
             </label>
 
             <div className="grid gap-3 sm:grid-cols-2">
